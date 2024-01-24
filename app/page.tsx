@@ -24,6 +24,8 @@ export default function Home() {
         <p className="text-white text-lg">A simple Authentication Service</p>
         <div>
           <LoginButton>
+            {" "}
+            {/* Wrapper which has onClick function which takes you to login page */}
             <Button size="lg" variant="secondary">
               Sign-in
             </Button>
