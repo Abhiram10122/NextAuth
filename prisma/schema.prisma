@@ -1,4 +1,11 @@
 // prisma/schema.prisma
+
+// Each time there is change in this file, we need to run 2 commands:
+// npx prisma generate
+// npx prisma db push
+
+// below models can be accessed from Auth.Js documentation inside "getting-started/adapters"
+// choose prisma adapter and you will find all the required code.
 datasource db {
   provider  = "postgresql"
   url  	    = env("DATABASE_URL")

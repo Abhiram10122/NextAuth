@@ -29,9 +29,10 @@ export const LoginForm = () => {
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
-  // z.infer<typeof LoginSchema  => This will create a typescript type.
+  // z.infer<typeof LoginSchema> => This will create a typescript type.
   // We can also write it as
   // type loginSchema = z.infer<typeof LoginSchema>;
+
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
