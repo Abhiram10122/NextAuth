@@ -4,13 +4,12 @@ import * as z from "zod";
 
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
-import { LoginSchema } from "@/schemas";
-import { Input } from "@/components/ui/input";
-import { login } from "@/actions/login";
+import { NewPasswordSchema } from "@/schemas";
+
+import { newPassword } from "@/actions/new-password";
 
 import {
   Form,
@@ -20,18 +19,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
+import { Input } from "@/components/ui/input";
 import { CardWrapper } from "./card-wrapper";
 import { Button } from "../ui/button";
+
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 
-export const LoginForm = () => {
+export const NewPasswordForm = () => {
   const searchParams = useSearchParams();
-  const urlError =
-    searchParams.get("error") === "OAuthAccountNotLinked"
-      ? "Email already in use with another provider!"
-      : "";
+  const token = searchParams.get("token");
 
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
@@ -41,55 +38,35 @@ export const LoginForm = () => {
   // We can also write it as
   // type loginSchema = z.infer<typeof LoginSchema>;
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<z.infer<typeof NewPasswordSchema>>({
+    resolver: zodResolver(NewPasswordSchema),
     defaultValues: {
-      email: "",
       password: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const onSubmit = (values: z.infer<typeof NewPasswordSchema>) => {
     setError("");
     setSuccess("");
 
     startTransition(() => {
-      login(values).then((data) => {
+      newPassword(values, token).then((data) => {
         setError(data?.error);
         setSuccess(data?.success);
       });
     });
+    console.log(values);
   };
 
   return (
     <CardWrapper
-      headerLabel="Welcome back"
-      backButtonHref="/auth/register"
-      backButtonLabel="Don't have an account?"
-      showSocial
+      headerLabel="Enter a new Password"
+      backButtonHref="/auth/login"
+      backButtonLabel="Back to login"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isPending}
-                      placeholder="john.doe@example.com"
-                      type="email"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <FormField
               control={form.control}
               name="password"
@@ -104,23 +81,15 @@ export const LoginForm = () => {
                       type="password"
                     />
                   </FormControl>
-                  <Button
-                    size="sm"
-                    variant="link"
-                    asChild
-                    className="px-0 font-medium"
-                  >
-                    <Link href="/auth/reset">Forgot Password?</Link>
-                  </Button>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-          <FormError message={error || urlError} />
+          <FormError message={error} />
           <FormSuccess message={success} />
           <Button disabled={isPending} type="submit" className="w-full">
-            Login
+            Reset password
           </Button>
         </form>
       </Form>

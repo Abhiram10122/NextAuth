@@ -4,13 +4,11 @@ import * as z from "zod";
 
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 
-import { LoginSchema } from "@/schemas";
-import { Input } from "@/components/ui/input";
-import { login } from "@/actions/login";
+import { ResetSchema } from "@/schemas";
+
+import { reset } from "@/actions/reset";
 
 import {
   Form,
@@ -20,19 +18,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
+import { Input } from "@/components/ui/input";
 import { CardWrapper } from "./card-wrapper";
 import { Button } from "../ui/button";
+
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 
-export const LoginForm = () => {
-  const searchParams = useSearchParams();
-  const urlError =
-    searchParams.get("error") === "OAuthAccountNotLinked"
-      ? "Email already in use with another provider!"
-      : "";
-
+export const ResetForm = () => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
@@ -41,32 +34,31 @@ export const LoginForm = () => {
   // We can also write it as
   // type loginSchema = z.infer<typeof LoginSchema>;
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<z.infer<typeof ResetSchema>>({
+    resolver: zodResolver(ResetSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const onSubmit = (values: z.infer<typeof ResetSchema>) => {
     setError("");
     setSuccess("");
 
     startTransition(() => {
-      login(values).then((data) => {
+      reset(values).then((data) => {
         setError(data?.error);
         setSuccess(data?.success);
       });
     });
+    console.log(values);
   };
 
   return (
     <CardWrapper
-      headerLabel="Welcome back"
-      backButtonHref="/auth/register"
-      backButtonLabel="Don't have an account?"
-      showSocial
+      headerLabel="Forget you password"
+      backButtonHref="/auth/login"
+      backButtonLabel="Back to login"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -89,38 +81,11 @@ export const LoginForm = () => {
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isPending}
-                      placeholder="******"
-                      type="password"
-                    />
-                  </FormControl>
-                  <Button
-                    size="sm"
-                    variant="link"
-                    asChild
-                    className="px-0 font-medium"
-                  >
-                    <Link href="/auth/reset">Forgot Password?</Link>
-                  </Button>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
-          <FormError message={error || urlError} />
+          <FormError message={error} />
           <FormSuccess message={success} />
           <Button disabled={isPending} type="submit" className="w-full">
-            Login
+            Send reset email
           </Button>
         </form>
       </Form>
